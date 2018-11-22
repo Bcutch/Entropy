@@ -1,1 +1,75 @@
+package com.company;
 
+import static com.company.ProjConstants.*;
+
+/**
+ * Created by 04585cut on 12/11/2018.
+ */
+public class Entropy {
+
+    private boolean ENCODE_ONLY = false;
+    private boolean DECODE_ONLY = false;
+
+    Entropy (int mode) {
+
+
+        boolean trash = false;
+
+        switch (mode) {
+            case ENCODE: {
+                ENCODE_ONLY = true;
+                break;
+            }
+            case DECODE: {
+                DECODE_ONLY = true;
+                break;
+            }
+            default: {
+                trash = true;
+                break;
+            }
+        }
+    }
+
+    public int encodeMsg(String Msg){
+        int rValue = INVALID;
+
+        if (ENCODE_ONLY) {
+            for (int i = 0; i < MAX_DATA; i++) {
+                if (Main.index[i][0].equals(Msg)) {
+                    rValue =  Integer.parseInt(Main.index[i][1]);
+                    break;
+                }
+                else {
+                    rValue =  INVALID_ENCODE;
+                }
+            }
+        }
+        else {
+            rValue = INVALID_ENCODE;
+        }
+
+        return rValue;
+    }
+
+    public String decodeMsg(int Msg){
+        String rValue = null;
+
+        if (DECODE_ONLY) {
+            for (int i = 0; i < MAX_DATA; i++) {
+                if (Integer.parseInt(Main.index[i][1]) == Msg) {
+                    rValue =  Main.index[i][0];
+                    break;
+                }
+                else {
+                    rValue =  INVALID_DECODE;
+                }
+            }
+        }
+        else {
+            rValue = INVALID_DECODE;
+        }
+
+        return rValue;
+    }
+}
