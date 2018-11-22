@@ -1,1 +1,196 @@
+package com.company;
 
+import com.sun.deploy.util.ArrayUtil;
+
+import java.util.*;
+import java.io.*;
+import static com.company.ProjConstants.*;
+
+public class Main {
+
+    public static String[][] index = new String[MAX_DATA][2];
+
+    public static void main(String[] args) throws IOException {
+
+        Entropy calcE = new Entropy(0);
+        Entropy encode = new Entropy(ENCODE);
+        Entropy decode = new Entropy(DECODE);
+
+        String frequency[][] = new String[MAX_DATA][2];
+
+        System.out.println("Please provide file of reference for encoding.");
+
+        Scanner scan = new Scanner(System.in);
+        String fileName = scan.next();
+
+        try {
+            File file = new File(fileName);
+            Scanner fileScan = new Scanner(file);
+
+            for (int i = 0; i < MAX_DATA; i++) {
+                frequency[i][0] = "INVALID";
+            }
+
+            for (int i = 0; i < MAX_DATA; i++) {
+                frequency[i][1] = "1";
+            }
+
+            boolean fileDone = false;
+            int Num = 0;
+            int position = 0;
+
+            while (!fileDone) {
+
+                if (fileScan.hasNext()) {
+
+                    boolean same = false;
+                    String word = fileScan.next();
+                    word = word.toLowerCase();
+
+                    for (int i = 0; i < 100; i++){
+
+                        if (word.equals(frequency[i][0])){
+
+                            same = true;
+                            Num = i;
+                        }
+                    }
+
+                    if (same){
+
+                        frequency[Num][1] = Integer.toString(Integer.parseInt(frequency[Num][1]) + 1);
+                    }
+
+                    if (!same) {
+
+                        frequency[position][0] = word;
+                        position++;
+                    }
+
+                }
+                else {
+
+                    fileDone = true;
+                }
+            }
+
+
+        }
+        catch (FileNotFoundException e) {
+            System.out.println(e);
+            e.printStackTrace();
+        }
+
+        Arrays.sort(frequency, Comparator.comparing(b -> b[1]));
+
+        for(int row = 0; row < 2; row++){
+            for(int column = 0; column < frequency.length / 2; column++) {
+                String temp = frequency[column][row];
+                frequency[column][row] = frequency[frequency.length - column - 1][row];
+                frequency[frequency.length - column - 1][row] = temp;
+            }
+        }
+
+
+        File bwFile = new File(fileName + "_out.txt");
+        BufferedWriter encodeFile = new BufferedWriter(new FileWriter(bwFile));
+
+        int intValue = 0;
+
+        for (int i = 0; i < MAX_DATA; i++) {
+            if (!frequency[i][0].equals("INVALID")) {
+                encodeFile.write(frequency[i][0] + " " + intValue);
+                encodeFile.newLine();
+
+                index[i][0] = frequency[i][0];
+                index[i][1] = Integer.toString(intValue);
+
+                intValue++;
+            }
+        }
+
+        encodeFile.close();
+
+        boolean encodeDone = false;
+
+        while (!encodeDone) {
+
+            System.out.println("Please provide file name you wish to encode.");
+
+            String userFile = scan.next();
+
+            File bwFile2 = new File(userFile + "_EC.txt");
+            BufferedWriter encodeFile2 = new BufferedWriter(new FileWriter(bwFile2));
+
+            try {
+                File f = new File(userFile);
+                Scanner scanFile = new Scanner(f);
+
+                boolean encodeFileDone = false;
+
+                while (!encodeFileDone) {
+                    if (scanFile.hasNext()) {
+                        int msgEncoded = encode.encodeMsg( scanFile.next().toLowerCase() );
+                        encodeFile2.write(msgEncoded);
+                        encodeFile2.newLine();
+                        System.out.println(msgEncoded);
+                    }
+                    else {
+                        encodeFileDone = true;
+                    }
+                }
+            }
+            catch (FileNotFoundException e) {
+                System.out.println(e);
+                e.printStackTrace();
+            }
+
+            File bwFile3 = new File(userFile + "_DC.txt");
+            BufferedWriter decodeFile = new BufferedWriter(new FileWriter(bwFile3));
+
+            try {
+                File f2 = new File(userFile + "_EC.txt");
+                Scanner scanECFile = new Scanner(f2);
+
+                boolean decodeFileDone = false;
+
+                while (!decodeFileDone) {
+                    if (scanECFile.hasNextInt()) {
+                        String msgDecoded = decode.decodeMsg( scanECFile.nextInt());
+                        decodeFile.write(msgDecoded);
+                        decodeFile.newLine();
+                        System.out.println(msgDecoded);
+                    }
+                    else {
+                        decodeFileDone = true;
+                    }
+                }
+            }
+            catch (FileNotFoundException e) {
+                System.out.println(e);
+                e.printStackTrace();
+            }
+
+            boolean good = false;
+
+            while(!good) {
+                System.out.println("Would you wish to encode another file?");
+
+                String response = scan.next();
+
+                if (response.toLowerCase().equals("yes")) {
+                    good = true;
+                }
+                else if (response.toLowerCase().equals("no")) {
+                    encodeDone = true;
+                    good = true;
+                }
+                else {
+                    System.out.println("Invalid response. Please type YES or NO");
+                }
+            }
+
+        }
+
+    }//DO NOT TOUCH
+}//NO TOUCHY
