@@ -1,5 +1,7 @@
 package com.company;
 
+import java.io.*;
+
 import static com.company.ProjConstants.*;
 
 /**
@@ -9,6 +11,7 @@ public class Entropy {
 
     private boolean ENCODE_ONLY = false;
     private boolean DECODE_ONLY = false;
+    private int msgs = INVALID;
 
     Entropy (int mode) {
 
@@ -52,12 +55,12 @@ public class Entropy {
         return rValue;
     }
 
-    public String decodeMsg(int Msg){
+    public String decodeMsg(String Msg){
         String rValue = null;
 
         if (DECODE_ONLY) {
             for (int i = 0; i < MAX_DATA; i++) {
-                if (Integer.parseInt(Main.index[i][1]) == Msg) {
+                if (Main.index[i][1].equals(Msg)) {
                     rValue =  Main.index[i][0];
                     break;
                 }
@@ -72,4 +75,28 @@ public class Entropy {
 
         return rValue;
     }
+
+    public int calcMaxBits() {
+        double bits = Math.log(msgs)/Math.log(2);
+        int bitNum = (int)Math.ceil(bits);
+
+        return bitNum;
+    }
+
+    //public int calcMsgBits() {
+
+    //}
+
+    public int numMsgs(int num) {
+        msgs = num;
+        return msgs;
+    }
+
+    //public int calcMsgProb() {
+
+    //}
+
+    //public int calcEntropy() {
+
+    //}
 }
